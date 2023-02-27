@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs-extra'
 import path from 'path'
 
 import chalk from 'chalk'
@@ -64,10 +64,10 @@ export const handler = async ({ force }: { force: boolean }) => {
           return new Listr(
             [
               {
-                title: 'Install @fastify/websocket',
+                title: 'Install inngest',
                 task: () => {
                   execa.commandSync(
-                    'yarn workspace api add @fastify/websocket',
+                    'yarn workspace api add inngest',
                     process.env['RWJS_CWD']
                       ? {
                           cwd: process.env['RWJS_CWD'],
@@ -82,7 +82,7 @@ export const handler = async ({ force }: { force: boolean }) => {
         },
       },
       {
-        title: 'Configure Fastify...',
+        title: 'Configure Inngest...',
         task: () => {
           /**
            * Update api/server.config.js
@@ -91,97 +91,57 @@ export const handler = async ({ force }: { force: boolean }) => {
            * If existing config is detected an error will be thrown
            */
 
-          const configPath = path.join(getPaths().api.base, 'server.config.js')
-          const serverConfigJs = fs.readFileSync(configPath, 'utf-8')
-
-          if (!force && serverConfigJs.includes('@fastify/websocket')) {
-            throw new Error(
-              '@fastify/websocket config already exists.\n' +
-                'Use --force to override existing config.'
-            )
-          }
-
-          const defaultServerConfigJs = fs.readFileSync(
+          const inngestServerFunctionTemplate = fs.readFileSync(
             path.resolve(
               __dirname,
               '..',
               'templates',
-              'server.config.js.default'
+              'inngest.ts.template'
             ),
             'utf-8'
           )
 
-          if (!force && serverConfigJs !== defaultServerConfigJs) {
-            throw new Error(
-              'It looks like you have modified the Fastify configuration.\n' +
-                'Use --force to override existing config.'
-            )
-          }
+          writeFile(
+            path.join(getPaths().api.functions, 'inngest.ts'),
+            inngestServerFunctionTemplate,
+            { existingFiles: 'OVERWRITE' }
+          )
 
-          const newServerConfigJs = fs.readFileSync(
+          const SRC_INNGEST_PATH = path.join(getPaths().api.src, 'inngest')
+
+          fs.ensureDirSync(SRC_INNGEST_PATH)
+
+          const inngestClientTemplate = fs.readFileSync(
             path.resolve(
               __dirname,
               '..',
               'templates',
-              'server.config.js.template'
+              'client.ts.template'
+            ),
+            'utf-8'
+          )
+
+          writeFile(
+            path.join(SRC_INNGEST_PATH, 'client.ts'),
+            inngestClientTemplate,
+            { existingFiles: 'OVERWRITE' }
+          )
+
+          const inngestHelloWorldTemplate = fs.readFileSync(
+            path.resolve(
+              __dirname,
+              '..',
+              'templates',
+              'helloWorld.ts.template'
             ),
             'utf-8'
           )
 
           return writeFile(
-            path.join(getPaths().api.base, 'server.config.js'),
-            newServerConfigJs,
+            path.join(SRC_INNGEST_PATH, 'helloWorld.ts'),
+            inngestHelloWorldTemplate,
             { existingFiles: 'OVERWRITE' }
           )
-        },
-      },
-      {
-        title: 'Adding WebSocket Context...',
-        task: () => {
-          /**
-           * Create web/src/components/WsContext/WsContext.tsx
-           * Throw an error if it already exists
-           *
-           * Add <WsContext> to App.tsx
-           */
-
-          if (!force && wsContextExists()) {
-            throw new Error(
-              'WsContext already exists.\nUse --force to override existing config.'
-            )
-          }
-
-          const wsContextTemplatePath = path.resolve(
-            __dirname,
-            '..',
-            'templates',
-            'WsContext.tsx.template'
-          )
-          writeFile(
-            wsContextPath(),
-            // TODO: ts-to-js if needed
-            fs.readFileSync(wsContextTemplatePath, 'utf-8'),
-            { existingFiles: 'OVERWRITE' }
-          )
-
-          const appTsxPath = getPaths().web.app
-          const appTsx = fs.readFileSync(appTsxPath, 'utf-8')
-          const newAppTsx = addWsContextComponent(appTsx).replace(
-            "import Routes from 'src/Routes'",
-            "import Routes from 'src/Routes'\n\nimport WsContextProvider from './components/WsContext/WsContext'"
-          )
-          fs.writeFileSync(appTsxPath, newAppTsx)
-        },
-      },
-      {
-        title: 'One more thing...',
-        task: (_ctx, task) => {
-          task.title = `One more thing...\n
-          ${colors.green('Read more about WebSockets in Redwood:')}\n
-          ${chalk.hex('#e8e8e8')(
-            'https://tlundberg.com/websockets-in-redwoodjs'
-          )}
-        `
         },
       },
     ],

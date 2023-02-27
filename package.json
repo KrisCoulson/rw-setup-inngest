@@ -1,11 +1,9 @@
 {
-  "name": "rw-setup-ws",
-  "version": "0.1.2",
-  "description": "Setup WebSockets in RedwoodJS",
+  "name": "rw-setup-inngest",
+  "version": "0.0.1",
+  "description": "Setup Inngest in RedwoodJS",
   "main": "./dist/cli.js",
-  "bin": {
-    "rw-setup-ws": "./dist/cli.js"
-  },
+  "bin": "./dist/cli.js",
   "scripts": {
     "start": "tsx src/cli",
     "build": "rm -fr ./dist && pkgroll",
@@ -25,19 +23,20 @@
     "websocket",
     "realtime"
   ],
-  "author": "Tobbe Lundberg",
+  "author": "Kris Coulson & Dom Saadi",
   "license": "MIT",
   "devDependencies": {
+    "@types/findup-sync": "^4.0.2",
+    "@types/yargs": "^17.0.22",
     "pkgroll": "^1.9.0",
     "tsx": "^3.12.3"
   },
   "dependencies": {
     "@redwoodjs/cli-helpers": "^4.0.0",
-    "@types/findup-sync": "^4.0.2",
-    "@types/yargs": "^17.0.22",
     "chalk": "4.1.2",
     "execa": "5.1.1",
     "findup-sync": "5.0.0",
+    "fs-extra": "^11.1.0",
     "listr2": "5.0.7",
     "yargs": "17.7.1"
   }

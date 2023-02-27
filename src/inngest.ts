@@ -8,9 +8,9 @@ interface ForceOptions extends BaseOptions {
   force: boolean
 }
 
-export const scriptName = "rw-setup-ws"
+export const scriptName = "rw-setup-inngest"
 
-export const description = 'Set up WebSockets'
+export const description = 'Set up Inngest'
 
 export const builder = (yargs: Yargs.Argv<BaseOptions>) => {
   return yargs.option('force', {
@@ -22,6 +22,6 @@ export const builder = (yargs: Yargs.Argv<BaseOptions>) => {
 }
 
 export const handler = async (options: ForceOptions) => {
-  const { handler } = await import('./webSocketsHandler')
+  const { handler } = await import('./inngestHandler')
   return handler(options)
 }
