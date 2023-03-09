@@ -1,74 +1,58 @@
-rw-setup-ws
+rw-setup-inngest
 ===========
 
-Command for setting up WebSocket support in a RedwoodJS project
+Command for setting up Inngest background jobs and events support in a RedwoodJS project
 
 Usage
 -----
 
 ```
-yarn dlx rw-setup-ws
+yarn dlx rw-setup-inngest
 ```
 
-Run the command above inside your RW project and it'll configure your Fastify (dev) server and add a React Context to the web side you can use to communicate over a WebSocket.
-To actually send something you'll need to use the `sendMessage` method on that context.
+Run the command above inside your RW project and it'll install and create the Inngest client in your RedwoodJS project.
 
-Here's a very basic example page you can use to get started. Run `yarn rw g page WebSocket` and then paste the code below in the generated page.
+### Run the Inngest dev server
+```
+ npx inngest-cli@latest
+```
+
+### Navigate to the Inngest dev server
+```
+http://127.0.0.1:8288/
+```
+
+
+### Sending Events to Inngest
+
+To quickly test out your event from the dev server click the "Send Event" button in top right and add you event data.
 
 ```
-import { useState } from 'react'
-
-import { useWsContext } from 'src/components/WsContext/WsContext'
-
-const WebSocketPage = () => {
-  const [name, setName] = useState('')
-  const [message, setMessage] = useState('')
-  const ws = useWsContext()
-
-  return (
-    <>
-      <label>
-        Name:{' '}
-        <input
-          value={name}
-          onChange={(event) => {
-            setName(event.target.value)
-          }}
-        />
-      </label>
-      <br />
-      <br />
-      <label>
-        Score:{' '}
-        <input
-          value={message}
-          onChange={(event) => {
-            const message = event.target.value
-
-            // Set the message in component state to make the input
-            // value update immediately
-            setMessage(message)
-
-            // Send to the server to update all clients (including
-            // this one)
-            ws.sendMessage(name, message)
-          }}
-        />
-      </label>
-      <hr />
-      <ul>
-        {Object.entries(ws.clients).map(([clientId, clientMessage]) => (
-          <li key={clientId}>
-            {clientId}: {clientMessage}
-          </li>
-        ))}
-      </ul>
-    </>
-  )
+{
+  "name": "test/hello.world",
+  "data": {
+    "name": "Redwood"
+  },
 }
-
-export default WebSocketPage
 ```
+
+
+
+
+To send an event from a redwood service you can import the inngest client and call the send method with your event data
+```
+import { inngest } from 'src/inngest/client'
+
+await inngest.send({
+  // The event name
+  name: "test/hello.world",
+  // The event's data
+  data: {
+    name: 'Redwood',
+  }
+```
+
+
 
 Note
 ----

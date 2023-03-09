@@ -4,5 +4,5 @@ export const INNGEST_APP_NAME = 'Redwood_Inngest'
 
 export const inngest = new Inngest({
   name: INNGEST_APP_NAME,
-  eventKey: 'Redwood'
+  eventKey: 'Redwood',
 })
