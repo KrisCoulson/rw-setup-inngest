@@ -1,6 +1,6 @@
 {
   "name": "rw-setup-inngest",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Setup Inngest in RedwoodJS",
   "main": "./dist/cli.js",
   "bin": "./dist/cli.js",
